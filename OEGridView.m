@@ -243,7 +243,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 
 - (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)idx makeIfNecessary:(BOOL)necessary
 {
-    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInteger:index]];
+    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInteger:idx]];
     if(result == nil && necessary)
     {
         result = [_dataSource gridView:self cellForItemAtIndex:idx];
