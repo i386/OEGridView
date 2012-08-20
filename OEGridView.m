@@ -26,7 +26,6 @@
 
 #import "OEGridView.h"
 #import "OEGridViewCell+OEGridView.h"
-#import "NSColor+OEAdditions.h"
 #import <Carbon/Carbon.h>
 
 #define OERunningMountainLion (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_7)
