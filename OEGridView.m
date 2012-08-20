@@ -243,7 +243,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 
 - (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)index makeIfNecessary:(BOOL)necessary
 {
-    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInt:index]];
+    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInteger:index]];
     if(result == nil && necessary)
     {
         result = [_dataSource gridView:self cellForItemAtIndex:index];
@@ -454,20 +454,20 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     // Query the data source for the number of items it has, this is only done if the caller explicitly sets shouldQueryForDataChanges.
     if(shouldQueryForDataChanges && _dataSource) numberOfItems = [_dataSource numberOfItemsInGridView:self];
-    numberOfRows = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+    numberOfRows = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
     
     // Check to see if the frame's width has changed to update the number of visible columns and the cached cell size
     if(itemSize.width == 0)
     {
         numberOfVisibleColumns = 1;
-        numberOfRows           = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+        numberOfRows           = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
     }
     else if(_cachedViewSize.width != viewSize.width || !NSEqualSizes(_cachedItemSize, itemSize))
     {
         // Set the number of visible columns based on the view's width, there must be at least 1 visible column and no more than the total number
         // of items within the data source.  Just because a column is potentially visible doesn't mean that there is enough data to populate it.
-        numberOfVisibleColumns = MAX((NSUInteger)(floor(viewSize.width / itemSize.width)), 1);
-        numberOfRows           = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+        numberOfVisibleColumns = MAX((NSUInteger)(floor(viewSize.width / itemSize.width)), 1ul);
+        numberOfRows           = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
         
         // The cell's height include the original itemSize.height + rowSpacing. The cell's column spacing is based on the number of visible columns.
         // The cell will be at least itemSize.width + minimumColumnSpacing, it could grow as larg as the width of the view
@@ -547,7 +547,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     // Check to see if the visible cells have changed
     const CGFloat    contentOffsetY       = NSMinY([[self enclosingScrollView] documentVisibleRect]);
-    const NSUInteger firstVisibleIndex    = MAX((NSInteger)floor(contentOffsetY / _cachedItemSize.height) - 1, 0) * _cachedNumberOfVisibleColumns;
+    const NSUInteger firstVisibleIndex    = (NSUInteger)MAX((NSInteger)floor(contentOffsetY / _cachedItemSize.height) - 1, 0) * _cachedNumberOfVisibleColumns;
     const NSUInteger numberOfVisibleCells = _cachedNumberOfVisibleColumns * (_cachedNumberOfVisibleRows + 2);
     
     NSIndexSet *visibleCellsIndexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstVisibleIndex, MIN(numberOfVisibleCells, _cachedNumberOfItems - firstVisibleIndex))];
@@ -814,7 +814,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 {
     [self OE_updateDecorativeLayers];
     const NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if(abs(_cachedContentOffset.y - visibleRect.origin.y) > _itemSize.height)
+    if(fabs(_cachedContentOffset.y - visibleRect.origin.y) > _itemSize.height)
     {
         _cachedContentOffset = visibleRect.origin;
         [self OE_checkForDataReload];
@@ -1049,7 +1049,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                 [_selectionIndexes enumerateIndexesUsingBlock:
                  ^ (NSUInteger idx, BOOL *stop)
                  {
-                     id<NSPasteboardWriting> item = [_dataSource gridView:self pasteboardWriterForIndex:idx];
+                     id<NSPasteboardWriting> item = [_dataSource gridView:self pasteboardWriterForIndex:(NSInteger)idx];
                      if(item != nil)
                      {
                          NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:item];
@@ -1579,11 +1579,11 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if(_dataSource != dataSource)
     {
         _dataSource = dataSource;
-        _dataSourceHas.viewForNoItemsInGridView           = [_dataSource respondsToSelector:@selector(viewForNoItemsInGridView:)];
-        _dataSourceHas.willBeginEditingCellForItemAtIndex = [_dataSource respondsToSelector:@selector(gridView:willBeginEditingCellForItemAtIndex:)];
-        _dataSourceHas.didEndEditingCellForItemAtIndex    = [_dataSource respondsToSelector:@selector(gridView:didEndEditingCellForItemAtIndex:)];
-        _dataSourceHas.pasteboardWriterForIndex           = [_dataSource respondsToSelector:@selector(gridView:pasteboardWriterForIndex:)];
-        _dataSourceHas.menuForItemsAtIndexes              = [_dataSource respondsToSelector:@selector(gridView:menuForItemsAtIndexes:)];
+        _dataSourceHas.viewForNoItemsInGridView           = (unsigned int)[_dataSource respondsToSelector:@selector(viewForNoItemsInGridView:)];
+        _dataSourceHas.willBeginEditingCellForItemAtIndex = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:willBeginEditingCellForItemAtIndex:)];
+        _dataSourceHas.didEndEditingCellForItemAtIndex    = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:didEndEditingCellForItemAtIndex:)];
+        _dataSourceHas.pasteboardWriterForIndex           = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:pasteboardWriterForIndex:)];
+        _dataSourceHas.menuForItemsAtIndexes              = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:menuForItemsAtIndexes:)];
         
         [self OE_setNeedsReloadData];
     }
@@ -1594,13 +1594,13 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if(_delegate != delegate)
     {
         _delegate = delegate;
-        _delegateHas.selectionChanged                = [_delegate respondsToSelector:@selector(selectionChangedInGridView:)];
-        _delegateHas.doubleClickedCellForItemAtIndex = [_delegate respondsToSelector:@selector(gridView:doubleClickedCellForItemAtIndex:)];
-        _delegateHas.validateDrop                    = [_delegate respondsToSelector:@selector(gridView:validateDrop:)];
-        _delegateHas.draggingUpdated                 = [_delegate respondsToSelector:@selector(gridView:draggingUpdated:)];
-        _delegateHas.acceptDrop                      = [_delegate respondsToSelector:@selector(gridView:acceptDrop:)];
-        _delegateHas.magnifiedWithEvent              = [_delegate respondsToSelector:@selector(gridView:magnifiedWithEvent:)];
-        _delegateHas.magnifyEndedWithEvent           = [_delegate respondsToSelector:@selector(gridView:magnifyEndedWithEvent:)];
+        _delegateHas.selectionChanged                = (unsigned int)[_delegate respondsToSelector:@selector(selectionChangedInGridView:)];
+        _delegateHas.doubleClickedCellForItemAtIndex = (unsigned int)[_delegate respondsToSelector:@selector(gridView:doubleClickedCellForItemAtIndex:)];
+        _delegateHas.validateDrop                    = (unsigned int)[_delegate respondsToSelector:@selector(gridView:validateDrop:)];
+        _delegateHas.draggingUpdated                 = (unsigned int)[_delegate respondsToSelector:@selector(gridView:draggingUpdated:)];
+        _delegateHas.acceptDrop                      = (unsigned int)[_delegate respondsToSelector:@selector(gridView:acceptDrop:)];
+        _delegateHas.magnifiedWithEvent              = (unsigned int)[_delegate respondsToSelector:@selector(gridView:magnifiedWithEvent:)];
+        _delegateHas.magnifyEndedWithEvent           = (unsigned int)[_delegate respondsToSelector:@selector(gridView:magnifyEndedWithEvent:)];
     }
 }
 
