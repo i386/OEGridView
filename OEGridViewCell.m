@@ -161,9 +161,9 @@
     return [self bounds];
 }
 
-- (void)OE_setIndex:(NSUInteger)index
+- (void)OE_setIndex:(NSUInteger)idx
 {
-    _index = index;
+    _index = idx;
 }
 
 - (NSUInteger)OE_index

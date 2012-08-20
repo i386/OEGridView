@@ -35,7 +35,7 @@
 
 @optional
 - (void)selectionChangedInGridView:(OEGridView *)gridView;
-- (void)gridView:(OEGridView *)gridView doubleClickedCellForItemAtIndex:(NSUInteger)index;
+- (void)gridView:(OEGridView *)gridView doubleClickedCellForItemAtIndex:(NSUInteger)idx;
 - (NSDragOperation)gridView:(OEGridView *)gridView validateDrop:(id<NSDraggingInfo>)sender;
 - (NSDragOperation)gridView:(OEGridView *)gridView draggingUpdated:(id<NSDraggingInfo>)sender;
 - (BOOL)gridView:(OEGridView *)gridView acceptDrop:(id<NSDraggingInfo>)sender;
@@ -47,14 +47,14 @@
 @protocol OEGridViewDataSource <NSObject>
 
 @required
-- (OEGridViewCell *)gridView:(OEGridView *)gridView cellForItemAtIndex:(NSUInteger)index;
+- (OEGridViewCell *)gridView:(OEGridView *)gridView cellForItemAtIndex:(NSUInteger)idx;
 - (NSUInteger)numberOfItemsInGridView:(OEGridView *)gridView;
 
 @optional
 - (NSView *)viewForNoItemsInGridView:(OEGridView *)gridView;
-- (void)gridView:(OEGridView *)gridView willBeginEditingCellForItemAtIndex:(NSUInteger)index;
-- (void)gridView:(OEGridView *)gridView didEndEditingCellForItemAtIndex:(NSUInteger)index;
-- (id<NSPasteboardWriting>)gridView:(OEGridView *)gridView pasteboardWriterForIndex:(NSInteger)index;
+- (void)gridView:(OEGridView *)gridView willBeginEditingCellForItemAtIndex:(NSUInteger)idx;
+- (void)gridView:(OEGridView *)gridView didEndEditingCellForItemAtIndex:(NSUInteger)idx;
+- (id<NSPasteboardWriting>)gridView:(OEGridView *)gridView pasteboardWriterForIndex:(NSInteger)idx;
 - (NSMenu *)gridView:(OEGridView *)gridView menuForItemsAtIndexes:(NSIndexSet *)indexes;
 
 @end
@@ -66,7 +66,7 @@
 
 - (id)dequeueReusableCell;
 - (NSUInteger)numberOfItems;
-- (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)index makeIfNecessary:(BOOL)necessary;
+- (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)idx makeIfNecessary:(BOOL)necessary;
 
 #pragma mark -
 #pragma mark Query Cells
@@ -76,15 +76,15 @@
 - (NSIndexSet *)indexesForCellsInRect:(NSRect)rect;
 - (NSArray *)visibleCells;
 - (NSIndexSet *)indexesForVisibleCells;
-- (NSRect)rectForCellAtIndex:(NSUInteger)index;
+- (NSRect)rectForCellAtIndex:(NSUInteger)idx;
 
 #pragma mark -
 #pragma mark Selection
 
 - (NSUInteger)indexForSelectedCell;
 - (NSIndexSet *)indexesForSelectedCells;
-- (void)selectCellAtIndex:(NSUInteger)index;
-- (void)deselectCellAtIndex:(NSUInteger)index;
+- (void)selectCellAtIndex:(NSUInteger)idx;
+- (void)deselectCellAtIndex:(NSUInteger)idx;
 - (void)selectAll:(id)sender;
 - (void)deselectAll:(id)sender;
 
