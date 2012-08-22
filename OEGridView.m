@@ -799,14 +799,11 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         [self setFrame:[[self enclosingScrollView] bounds]];
         [self OE_centerNoItemsView];
     }
-    else
+    const NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
+    if(!NSEqualSizes(_cachedViewSize, visibleRect.size))
     {
-        const NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-        if(!NSEqualSizes(_cachedViewSize, visibleRect.size))
-        {
-            [self OE_cancelFieldEditor];
-            [self performSelector:@selector(OE_calculateCachedValuesAndQueryForDataChanges:) withObject:[NSNumber numberWithBool:NO] afterDelay:0.25];
-        }
+        [self OE_cancelFieldEditor];
+        [self OE_calculateCachedValuesAndQueryForDataChanges:NO];
     }
 }
 
@@ -1240,10 +1237,10 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     _hoveringLayer = newLayer;
     const NSPoint pointInLayer = [_rootLayer convertPoint:pointInView toLayer:_hoveringLayer];
     if (oldLayer != _hoveringLayer) {
-        [oldLayer mouseExitedAtPointInCell:pointInLayer withEvent:theEvent];
-        [_hoveringLayer mouseEnteredAtPointInCell:pointInLayer withEvent:theEvent];
+        [oldLayer mouseExitedAtPointInLayer:pointInLayer withEvent:theEvent];
+        [_hoveringLayer mouseEnteredAtPointInLayer:pointInLayer withEvent:theEvent];
     } else {
-        [_hoveringLayer mouseMovedAtPointInCell:pointInLayer withEvent:theEvent];
+        [_hoveringLayer mouseMovedAtPointInLayer:pointInLayer withEvent:theEvent];
     }
 }
 
@@ -1252,7 +1249,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if (_hoveringLayer) {
         const NSPoint pointInView = [self OE_pointInViewFromEvent:theEvent];
         const NSPoint pointInLayer = [_rootLayer convertPoint:pointInView toLayer:_hoveringLayer];
-        [_hoveringLayer mouseExitedAtPointInCell:pointInLayer withEvent:theEvent];
+        [_hoveringLayer mouseExitedAtPointInLayer:pointInLayer withEvent:theEvent];
         _hoveringLayer = nil;
     }
 }
