@@ -1089,8 +1089,8 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         // Calculate the selection rect
         const NSPoint pointInView   = [self OE_pointInViewFromEvent:theEvent];
         const CGRect  bounds        = [self bounds];
-        const CGPoint minPoint      = CGPointMake(MAX(MIN(pointInView.x, _initialPoint.x), 0.0),                   MAX(MIN(pointInView.y, _initialPoint.y), 1.0));
-        const CGPoint maxPoint      = CGPointMake(MIN(MAX(pointInView.x, _initialPoint.x), CGRectGetMaxX(bounds)), MIN(MAX(pointInView.y, _initialPoint.y), CGRectGetMaxY(bounds)));
+        const CGPoint minPoint      = CGPointMake(fmax(fmin(pointInView.x, _initialPoint.x), 0.0),                   fmax(fmin(pointInView.y, _initialPoint.y), 1.0));
+        const CGPoint maxPoint      = CGPointMake(fmin(fmax(pointInView.x, _initialPoint.x), CGRectGetMaxX(bounds)), fmin(fmax(pointInView.y, _initialPoint.y), CGRectGetMaxY(bounds)));
         const CGRect  selectionRect = { .origin = minPoint, .size = { maxPoint.x - minPoint.x, maxPoint.y - minPoint.y }};
         
         [CATransaction begin];
