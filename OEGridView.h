@@ -105,7 +105,7 @@
 @property(nonatomic, assign) CGSize      itemSize;             // User defined cell size (defaults to 250 x 250)
 @property(nonatomic, copy)   NSIndexSet *selectionIndexes;     // NSIndexSet of selected indexes
 
-@property(nonatomic, assign) id<OEGridViewDataSource> dataSource; // Responsible for supplying the cells of each object represented in the grid
-@property(nonatomic, assign) id<OEGridViewDelegate>   delegate;   // Receives information regarding the user interaction of the grid and it's cells
+@property(nonatomic, assign) IBOutlet id<OEGridViewDataSource> dataSource; // Responsible for supplying the cells of each object represented in the grid
+@property(nonatomic, assign) IBOutlet id<OEGridViewDelegate>   delegate;   // Receives information regarding the user interaction of the grid and it's cells
 
 @end
