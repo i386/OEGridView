@@ -35,7 +35,6 @@
 - (void)mouseDownAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 - (void)mouseUpAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 - (void)mouseDraggedAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
-- (void)retain
 - (void)mouseEnteredAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 - (void)mouseExitedAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 
