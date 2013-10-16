@@ -12,7 +12,8 @@ Pod::Spec.new do |s|
   # s.requires_arc = false
   
   s.subspec 'arc' do |sp|
-    sp.source_files = FileList['*.*}'].exclude('NSColor+OEAdditions.*')
+    sp.source_files = ‘*.{h,m}’
+    sp.exclude_files = ‘NSColor+OEAdditions.{h,m}’
     sp.requires_arc = true
   end
 
