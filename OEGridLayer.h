@@ -37,6 +37,7 @@
 - (void)mouseDraggedAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 - (void)mouseEnteredAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 - (void)mouseExitedAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
+- (void)mouseMovedAtPointInLayer:(NSPoint)point withEvent:(NSEvent *)theEvent;
 
 #pragma mark -
 #pragma mark Dragging Operations
