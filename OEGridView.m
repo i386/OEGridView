@@ -196,11 +196,6 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         
         _dragIndicationLayer = [[OEGridLayer alloc] init];
         [_dragIndicationLayer setInteractive:NO];
-        [_dragIndicationLayer setBorderColor:[[NSColor colorWithDeviceRed:0.03 green:0.41 blue:0.85 alpha:1.0] CGColor]];
-        [_dragIndicationLayer setBorderWidth:2.0];
-        [_dragIndicationLayer setCornerRadius:8.0];
-        [_dragIndicationLayer setHidden:YES];
-        [_dragIndicationLayer setContentsScale:scaleFactor];
         [_rootLayer addSublayer:_dragIndicationLayer];
         
         _fieldEditor = [[OEGridViewFieldEditor alloc] initWithFrame:NSMakeRect(50, 50, 50, 50)];
@@ -1599,6 +1594,11 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         _delegateHas.acceptDrop                      = [_delegate respondsToSelector:@selector(gridView:acceptDrop:)];
         _delegateHas.magnifiedWithEvent              = [_delegate respondsToSelector:@selector(gridView:magnifiedWithEvent:)];
         _delegateHas.magnifyEndedWithEvent           = [_delegate respondsToSelector:@selector(gridView:magnifyEndedWithEvent:)];
+        
+        if ([_delegate respondsToSelector:@selector(gridView:prepareDragIndicationLayer:)])
+        {
+            [delegate gridView:self prepareDragIndicationLayer:_dragIndicationLayer];
+        }
     }
 }
 

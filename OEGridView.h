@@ -41,6 +41,7 @@
 - (BOOL)gridView:(OEGridView *)gridView acceptDrop:(id<NSDraggingInfo>)sender;
 - (void)gridView:(OEGridView *)gridView magnifiedWithEvent:(NSEvent*)event;
 - (void)gridView:(OEGridView *)gridView magnifyEndedWithEvent:(NSEvent*)event;
+- (BOOL)gridView:(OEGridView *)gridView prepareDragIndicationLayer:(OEGridLayer*)gridLayer;
 @end
 
 #pragma mark -
