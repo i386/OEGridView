@@ -1,28 +1,33 @@
-### OEGridView (from the [OpenEmu project](https://github.com/OpenEmu/OpenEmu/))
-#### Sonora 2.0 Fork
+# OEGridView (from the [OpenEmu project](https://github.com/OpenEmu/OpenEmu/))
+## rastersize’s Fork
+The primary changes in rastersize’s fork:
+- Requires OS X 10.8 or newer to build.
+- Removes the `CGColor` additions to NSColor as these are available by default in 10.8+.
 
-This is the unofficial repo for my fork of OEGridView, the high performance Core Animation based grid view used in [OpenEmu](http://openemu.org) (which is a fantastic app, by the way).
+The fork is based on [Indragie Karunaratne](https://github.com/indragiek) unofficial repo for his fork of OEGridView, the high performance Core Animation based grid view used in [OpenEmu](http://openemu.org) (which is a fantastic app, by the way).
 
-OEGridView doesn't have its own repository, so I copied the required source files and am hosting it in this repository with my own additions that I put in for use in the upcoming [Sonora 2.0](http://indragie.com).
+OEGridView doesn't have its own repository, so Indragie copied the required source files and is hosting it in his repository with his own additions that he put in for use in the upcoming [Sonora 2.0](http://indragie.com) app.
 
 **The original source code was written mainly by [Enrique Osuna](https://github.com/riquedafreak) along with contributions from other members of the OpenEmu project**
 
-I'm also putting in some documentation in here to help other people use it in their projects. 
+Indragie has also put some documentation in here to help other people use it in their projects.
 
-#### Requirements
+## Requirements
+OEGridView requires ARC. If your project doesn't use ARC, simply add the `-fobjc-arc` flag to all of the files. You must also link with _QuartzCore_.
 
-OEGridView requires ARC. If your project doesn't use ARC, simply add the `-fobjc-arc` flag to all of the files except for `NSColor+OEAdditions.m`, which can not be compiled with ARC enabled. 
+This specific fork requires that you must target 10.8 or newer.
 
-#### Additions for Sonora 2
-
+## Additions comparted to OpenEmu
+### Additions for Sonora 2
 This project has a few additions that were made due to the needs of Sonora 2:
 
 - Support for OS X 10.8 Mountain Lion and the Retina display
 - Support for receiving mouse entered, exited, and moved events inside layers
 
+### Additions by rastersize
+_TBP (To Be Pushed)_
 
-#### How to use
-
+## How to use
 Basic usage of OEGridView is super simple:
 
 - Place the OEGridView inside an NSScrollView
@@ -30,14 +35,14 @@ Basic usage of OEGridView is super simple:
 - Set the `itemSize` property of the `OEGridView` to the size of each content cell
 - Implement the following two methods:
 
-```
+```Objective-C
 - (OEGridViewCell *)gridView:(OEGridView *)gridView cellForItemAtIndex:(NSUInteger)index;
 - (NSUInteger)numberOfItemsInGridView:(OEGridView *)gridView;
 ```
 
 The `gridView:cellForItemAtIndex:` method is where you would return an instance of your `OEGridViewCell` subclass. A basic implementation of this method would look like this (from Sonora):
 
-```
+```Objective-C
 - (OEGridViewCell *)gridView:(OEGridView *)gridView cellForItemAtIndex:(NSUInteger)index
 {
 	SNRAlbumGridViewCell *item = (SNRAlbumGridViewCell *)[gridView cellForItemAtIndex:index makeIfNecessary:NO];
@@ -64,7 +69,7 @@ Creating an `OEGridViewCell` subclass is also fairly simple. First of all, a few
 
 A basic `OEGridViewCell` subclass might look like this:
 
-```
+```Objective-C
 - (id)init
 {
     if ((self = [super init])) {
@@ -116,7 +121,7 @@ A basic `OEGridViewCell` subclass might look like this:
 }
 ```
 
-#### License
+## License
 
 OpenEmu is distributed under the following license, which also applies to OEGridView:
 

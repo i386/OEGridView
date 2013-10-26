@@ -96,7 +96,7 @@
 - (id)draggingImage
 {
     const CGSize       imageSize     = [self bounds].size;
-    NSBitmapImageRep  *dragImageRep  = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:imageSize.width pixelsHigh:imageSize.height bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSCalibratedRGBColorSpace bytesPerRow:(NSInteger)ceil(imageSize.width) * 4 bitsPerPixel:32];
+    NSBitmapImageRep  *dragImageRep  = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:(NSInteger)imageSize.width pixelsHigh:(NSInteger)imageSize.height bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSCalibratedRGBColorSpace bytesPerRow:(NSInteger)ceil(imageSize.width) * 4 bitsPerPixel:32];
     NSGraphicsContext *bitmapContext = [NSGraphicsContext graphicsContextWithBitmapImageRep:dragImageRep];
     CGContextRef       ctx           = (CGContextRef)[bitmapContext graphicsPort];
 
@@ -136,7 +136,7 @@
 
 - (void)OE_reorderLayers
 {
-    [super insertSublayer:_foregroundLayer atIndex:[[self sublayers] count]];
+    [super insertSublayer:_foregroundLayer atIndex:(unsigned int)[[self sublayers] count]];
 }
 
 - (void)setForegroundLayer:(CALayer *)foregroundLayer
@@ -161,9 +161,9 @@
     return [self bounds];
 }
 
-- (void)OE_setIndex:(NSUInteger)index
+- (void)OE_setIndex:(NSUInteger)idx
 {
-    _index = index;
+    _index = idx;
 }
 
 - (NSUInteger)OE_index

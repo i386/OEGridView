@@ -26,7 +26,6 @@
 
 #import "OEGridView.h"
 #import "OEGridViewCell+OEGridView.h"
-#import "NSColor+OEAdditions.h"
 #import <Carbon/Carbon.h>
 
 #define OERunningMountainLion (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_7)
@@ -43,7 +42,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 - (void)OE_clipViewFrameChanged:(NSNotification *)notification;
 - (void)OE_clipViewBoundsChanged:(NSNotification *)notification;
 
-- (void)OE_moveKeyboardSelectionToIndex:(NSUInteger)index;
+- (void)OE_moveKeyboardSelectionToIndex:(NSUInteger)idx;
 
 - (void)OE_setNeedsLayoutGridView;
 - (void)OE_layoutGridViewIfNeeded;
@@ -240,15 +239,15 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     return _cachedNumberOfItems;
 }
 
-- (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)index makeIfNecessary:(BOOL)necessary
+- (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)idx makeIfNecessary:(BOOL)necessary
 {
-    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInt:index]];
+    OEGridViewCell *result = [_visibleCellByIndex objectForKey:[NSNumber numberWithUnsignedInteger:idx]];
     if(result == nil && necessary)
     {
-        result = [_dataSource gridView:self cellForItemAtIndex:index];
-        [result OE_setIndex:index];
-        [result setSelected:[_selectionIndexes containsIndex:index] animated:NO];
-        [result setFrame:[self rectForCellAtIndex:index]];
+        result = [_dataSource gridView:self cellForItemAtIndex:idx];
+        [result OE_setIndex:idx];
+        [result setSelected:[_selectionIndexes containsIndex:idx] animated:NO];
+        [result setFrame:[self rectForCellAtIndex:idx]];
     }
     
     return result;
@@ -281,7 +280,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     // Calculate the starting index
     NSUInteger startIndex       = firstCol + (firstRow * _cachedNumberOfVisibleColumns);
-    NSUInteger index;
+    NSUInteger idx;
     
     // As long as the start index is within the number of known items, then we can return some cells
     if(startIndex < _cachedNumberOfItems)
@@ -292,19 +291,19 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         
         for(NSUInteger row = 0; row < numRows; row++)
         {
-            index = startIndex;
-            for(NSUInteger col = 0; col < numCols; col++, index++)
+            idx = startIndex;
+            for(NSUInteger col = 0; col < numCols; col++, idx++)
             {
-                if(index >= _cachedNumberOfItems) break;
+                if(idx >= _cachedNumberOfItems) break;
                 
-                cell = [self cellForItemAtIndex:index makeIfNecessary:YES];
+                cell = [self cellForItemAtIndex:idx makeIfNecessary:YES];
                 frame = [cell frame];
                 hitRect = NSOffsetRect([cell hitRect], NSMinX(frame), NSMinY(frame));
                 
-                if(NSIntersectsRect(rect, hitRect)) [result addIndex:index];
+                if(NSIntersectsRect(rect, hitRect)) [result addIndex:idx];
             }
             
-            if(index >= _cachedNumberOfItems) break;
+            if(idx >= _cachedNumberOfItems) break;
             
             startIndex += _cachedNumberOfVisibleColumns;
         }
@@ -329,12 +328,12 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     return [_visibleCellsIndexes copy];
 }
 
-- (NSRect)rectForCellAtIndex:(NSUInteger)index
+- (NSRect)rectForCellAtIndex:(NSUInteger)idx
 {
-    if(index >= _cachedNumberOfItems) return NSZeroRect;
+    if(idx >= _cachedNumberOfItems) return NSZeroRect;
     
-    const NSUInteger col = index % _cachedNumberOfVisibleColumns;
-    const NSUInteger row = index / _cachedNumberOfVisibleColumns;
+    const NSUInteger col = idx % _cachedNumberOfVisibleColumns;
+    const NSUInteger row = idx / _cachedNumberOfVisibleColumns;
     
     return NSMakeRect(floor(col * _cachedItemSize.width + _cachedColumnSpacing), floor(row * _cachedItemSize.height + (_rowSpacing / 2.f)), _itemSize.width, _itemSize.height);
 }
@@ -353,26 +352,26 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     return [_selectionIndexes copy];
 }
 
-- (void)selectCellAtIndex:(NSUInteger)index
+- (void)selectCellAtIndex:(NSUInteger)idx
 {
-    if(index == NSNotFound) return;
+    if(idx == NSNotFound) return;
     
-    OEGridViewCell *item = [self cellForItemAtIndex:index makeIfNecessary:NO];
+    OEGridViewCell *item = [self cellForItemAtIndex:idx makeIfNecessary:NO];
     [item setSelected:YES animated:![CATransaction disableActions]];
     
-    [_selectionIndexes addIndex:index];
+    [_selectionIndexes addIndex:idx];
     
     if(_delegateHas.selectionChanged) [_delegate selectionChangedInGridView:self];
 }
 
-- (void)deselectCellAtIndex:(NSUInteger)index
+- (void)deselectCellAtIndex:(NSUInteger)idx
 {
-    if(index == NSNotFound) return;
+    if(idx == NSNotFound) return;
     
-    OEGridViewCell *item = [self cellForItemAtIndex:index makeIfNecessary:NO];
+    OEGridViewCell *item = [self cellForItemAtIndex:idx makeIfNecessary:NO];
     [item setSelected:NO animated:![CATransaction disableActions]];
     
-    [_selectionIndexes removeIndex:index];
+    [_selectionIndexes removeIndex:idx];
     
     if(_delegateHas.selectionChanged) [_delegate selectionChangedInGridView:self];
 }
@@ -453,20 +452,20 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     // Query the data source for the number of items it has, this is only done if the caller explicitly sets shouldQueryForDataChanges.
     if(shouldQueryForDataChanges && _dataSource) numberOfItems = [_dataSource numberOfItemsInGridView:self];
-    numberOfRows = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+    numberOfRows = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
     
     // Check to see if the frame's width has changed to update the number of visible columns and the cached cell size
     if(itemSize.width == 0)
     {
         numberOfVisibleColumns = 1;
-        numberOfRows           = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+        numberOfRows           = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
     }
     else if(_cachedViewSize.width != viewSize.width || !NSEqualSizes(_cachedItemSize, itemSize))
     {
         // Set the number of visible columns based on the view's width, there must be at least 1 visible column and no more than the total number
         // of items within the data source.  Just because a column is potentially visible doesn't mean that there is enough data to populate it.
-        numberOfVisibleColumns = MAX((NSUInteger)(floor(viewSize.width / itemSize.width)), 1);
-        numberOfRows           = ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
+        numberOfVisibleColumns = MAX((NSUInteger)(floor(viewSize.width / itemSize.width)), 1ul);
+        numberOfRows           = (NSUInteger)ceil((CGFloat)numberOfItems / MAX((CGFloat)numberOfVisibleColumns, 1));
         
         // The cell's height include the original itemSize.height + rowSpacing. The cell's column spacing is based on the number of visible columns.
         // The cell will be at least itemSize.width + minimumColumnSpacing, it could grow as larg as the width of the view
@@ -546,7 +545,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     // Check to see if the visible cells have changed
     const CGFloat    contentOffsetY       = NSMinY([[self enclosingScrollView] documentVisibleRect]);
-    const NSUInteger firstVisibleIndex    = MAX((NSInteger)floor(contentOffsetY / _cachedItemSize.height) - 1, 0) * _cachedNumberOfVisibleColumns;
+    const NSUInteger firstVisibleIndex    = (NSUInteger)MAX((NSInteger)floor(contentOffsetY / _cachedItemSize.height) - 1, 0) * _cachedNumberOfVisibleColumns;
     const NSUInteger numberOfVisibleCells = _cachedNumberOfVisibleColumns * (_cachedNumberOfVisibleRows + 2);
     
     NSIndexSet *visibleCellsIndexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstVisibleIndex, MIN(numberOfVisibleCells, _cachedNumberOfItems - firstVisibleIndex))];
@@ -810,7 +809,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 {
     [self OE_updateDecorativeLayers];
     const NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if(abs(_cachedContentOffset.y - visibleRect.origin.y) > _itemSize.height)
+    if(fabs(_cachedContentOffset.y - visibleRect.origin.y) > _itemSize.height)
     {
         _cachedContentOffset = visibleRect.origin;
         [self OE_checkForDataReload];
@@ -839,10 +838,10 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 {
     [_rootLayer insertSublayer:_backgroundLayer atIndex:0];
     
-    unsigned int index = (unsigned int)[[_rootLayer sublayers] count];
-    [_rootLayer insertSublayer:_foregroundLayer atIndex:index];
-    [_rootLayer insertSublayer:_selectionLayer atIndex:index];
-    [_rootLayer insertSublayer:_dragIndicationLayer atIndex:index];
+    unsigned int idx = (unsigned int)[[_rootLayer sublayers] count];
+    [_rootLayer insertSublayer:_foregroundLayer atIndex:idx];
+    [_rootLayer insertSublayer:_selectionLayer atIndex:idx];
+    [_rootLayer insertSublayer:_dragIndicationLayer atIndex:idx];
 }
 
 - (void)OE_updateDecorativeLayers
@@ -1045,7 +1044,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                 [_selectionIndexes enumerateIndexesUsingBlock:
                  ^ (NSUInteger idx, BOOL *stop)
                  {
-                     id<NSPasteboardWriting> item = [_dataSource gridView:self pasteboardWriterForIndex:idx];
+                     id<NSPasteboardWriting> item = [_dataSource gridView:self pasteboardWriterForIndex:(NSInteger)idx];
                      if(item != nil)
                      {
                          NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:item];
@@ -1104,8 +1103,8 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         // Calculate the selection rect
         const NSPoint pointInView   = [self OE_pointInViewFromEvent:theEvent];
         const CGRect  bounds        = [self bounds];
-        const CGPoint minPoint      = CGPointMake(MAX(MIN(pointInView.x, _initialPoint.x), 0.0),                   MAX(MIN(pointInView.y, _initialPoint.y), 1.0));
-        const CGPoint maxPoint      = CGPointMake(MIN(MAX(pointInView.x, _initialPoint.x), CGRectGetMaxX(bounds)), MIN(MAX(pointInView.y, _initialPoint.y), CGRectGetMaxY(bounds)));
+        const CGPoint minPoint      = CGPointMake(fmax(fmin(pointInView.x, _initialPoint.x), 0.0),                   fmax(fmin(pointInView.y, _initialPoint.y), 1.0));
+        const CGPoint maxPoint      = CGPointMake(fmin(fmax(pointInView.x, _initialPoint.x), CGRectGetMaxX(bounds)), fmin(fmax(pointInView.y, _initialPoint.y), CGRectGetMaxY(bounds)));
         const CGRect  selectionRect = { .origin = minPoint, .size = { maxPoint.x - minPoint.x, maxPoint.y - minPoint.y }};
         
         [CATransaction begin];
@@ -1301,13 +1300,13 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 	[[self window] makeFirstResponder:self];
 	NSPoint mouseLocationInWindow = [event locationInWindow];
 	NSPoint mouseLocationInView = [self convertPoint:mouseLocationInWindow fromView:nil];
-	NSUInteger index = [self indexForCellAtPoint:mouseLocationInView];
-	if(index != NSNotFound && _dataSourceHas.menuForItemsAtIndexes)
+	NSUInteger idx = [self indexForCellAtPoint:mouseLocationInView];
+	if(idx != NSNotFound && _dataSourceHas.menuForItemsAtIndexes)
 	{
-		BOOL itemIsSelected = [[self selectionIndexes] containsIndex:index];
-		NSIndexSet* indexes = itemIsSelected ? [self selectionIndexes] : [NSIndexSet indexSetWithIndex:index];
+		BOOL itemIsSelected = [[self selectionIndexes] containsIndex:idx];
+		NSIndexSet* indexes = itemIsSelected ? [self selectionIndexes] : [NSIndexSet indexSetWithIndex:idx];
 		if(!itemIsSelected)
-			[self setSelectionIndexes:[NSIndexSet indexSetWithIndex:index]];
+			[self setSelectionIndexes:[NSIndexSet indexSetWithIndex:idx]];
 		return [[self dataSource] gridView:self menuForItemsAtIndexes:indexes];
 	}
 	return [self menu];
@@ -1333,20 +1332,20 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 #pragma mark -
 #pragma mark Keyboard Handling Operations
 
-- (void)OE_moveKeyboardSelectionToIndex:(NSUInteger)index
+- (void)OE_moveKeyboardSelectionToIndex:(NSUInteger)idx
 {
     NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags];
     BOOL       multiSelect   = ((modifierFlags & NSCommandKeyMask) == NSCommandKeyMask) || ((modifierFlags & NSShiftKeyMask) == NSShiftKeyMask);
     
     if(!multiSelect) [self deselectAll:self];
     
-    if(index != NSNotFound)
+    if(idx != NSNotFound)
     {
-        [self selectCellAtIndex:index];
-        [self scrollRectToVisible:NSIntegralRect(NSInsetRect([self rectForCellAtIndex:index], 0.0, -_rowSpacing))];
+        [self selectCellAtIndex:idx];
+        [self scrollRectToVisible:NSIntegralRect(NSInsetRect([self rectForCellAtIndex:idx], 0.0, -_rowSpacing))];
     }
     
-    _indexOfKeyboardSelection = index;
+    _indexOfKeyboardSelection = idx;
 }
 
 - (void)cancelOperation:(id)sender
@@ -1358,60 +1357,60 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 {
     if(_cachedNumberOfItems == 0) return;
     
-    NSUInteger index = 0;
-    if(_indexOfKeyboardSelection == NSNotFound) index = (_cachedNumberOfItems / _cachedNumberOfVisibleColumns) * _cachedNumberOfVisibleColumns;
-    else                                        index = MIN(_indexOfKeyboardSelection, _indexOfKeyboardSelection - _cachedNumberOfVisibleColumns);
+    NSUInteger idx = 0;
+    if(_indexOfKeyboardSelection == NSNotFound) idx = (_cachedNumberOfItems / _cachedNumberOfVisibleColumns) * _cachedNumberOfVisibleColumns;
+    else                                        idx = MIN(_indexOfKeyboardSelection, _indexOfKeyboardSelection - _cachedNumberOfVisibleColumns);
     
-    [self OE_moveKeyboardSelectionToIndex:index];
+    [self OE_moveKeyboardSelectionToIndex:idx];
 }
 
 - (void)moveDown:(id)sender
 {
     if(_cachedNumberOfItems == 0) return;
     
-    NSUInteger index = 0;
+    NSUInteger idx = 0;
     if(_indexOfKeyboardSelection != NSNotFound)
     {
-        index = _indexOfKeyboardSelection + _cachedNumberOfVisibleColumns;
-        if(index >= _cachedNumberOfItems) index = _indexOfKeyboardSelection;
+        idx = _indexOfKeyboardSelection + _cachedNumberOfVisibleColumns;
+        if(idx >= _cachedNumberOfItems) idx = _indexOfKeyboardSelection;
     }
     
-    [self OE_moveKeyboardSelectionToIndex:index];
+    [self OE_moveKeyboardSelectionToIndex:idx];
 }
 
 - (void)moveLeft:(id)sender
 {
     if(_cachedNumberOfItems == 0) return;
     
-    NSUInteger index = 0;
+    NSUInteger idx = 0;
     if(_indexOfKeyboardSelection == NSNotFound)
     {
-        index = MIN(_cachedNumberOfVisibleColumns, _cachedNumberOfItems) - 1;
+        idx = MIN(_cachedNumberOfVisibleColumns, _cachedNumberOfItems) - 1;
     }
     else
     {
         if(_indexOfKeyboardSelection > 0)
         {
             const NSUInteger rowFirstIndex = (_indexOfKeyboardSelection / _cachedNumberOfVisibleColumns) * _cachedNumberOfVisibleColumns;
-            index = MAX(rowFirstIndex, _indexOfKeyboardSelection - 1);
+            idx = MAX(rowFirstIndex, _indexOfKeyboardSelection - 1);
         }
     }
     
-    [self OE_moveKeyboardSelectionToIndex:index];
+    [self OE_moveKeyboardSelectionToIndex:idx];
 }
 
 - (void)moveRight:(id)sender
 {
     if(_cachedNumberOfItems == 0) return;
     
-    NSUInteger index = 0;
+    NSUInteger idx = 0;
     if(_indexOfKeyboardSelection != NSNotFound)
     {
         const NSUInteger rowLastIndex = MIN((((_indexOfKeyboardSelection / _cachedNumberOfVisibleColumns) + 1) * _cachedNumberOfVisibleColumns), _cachedNumberOfItems);
-        index = MIN(rowLastIndex - 1, _indexOfKeyboardSelection + 1);
+        idx = MIN(rowLastIndex - 1, _indexOfKeyboardSelection + 1);
     }
     
-    [self OE_moveKeyboardSelectionToIndex:index];
+    [self OE_moveKeyboardSelectionToIndex:idx];
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -1619,11 +1618,11 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if(_dataSource != dataSource)
     {
         _dataSource = dataSource;
-        _dataSourceHas.viewForNoItemsInGridView           = [_dataSource respondsToSelector:@selector(viewForNoItemsInGridView:)];
-        _dataSourceHas.willBeginEditingCellForItemAtIndex = [_dataSource respondsToSelector:@selector(gridView:willBeginEditingCellForItemAtIndex:)];
-        _dataSourceHas.didEndEditingCellForItemAtIndex    = [_dataSource respondsToSelector:@selector(gridView:didEndEditingCellForItemAtIndex:)];
-        _dataSourceHas.pasteboardWriterForIndex           = [_dataSource respondsToSelector:@selector(gridView:pasteboardWriterForIndex:)];
-        _dataSourceHas.menuForItemsAtIndexes              = [_dataSource respondsToSelector:@selector(gridView:menuForItemsAtIndexes:)];
+        _dataSourceHas.viewForNoItemsInGridView           = (unsigned int)[_dataSource respondsToSelector:@selector(viewForNoItemsInGridView:)];
+        _dataSourceHas.willBeginEditingCellForItemAtIndex = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:willBeginEditingCellForItemAtIndex:)];
+        _dataSourceHas.didEndEditingCellForItemAtIndex    = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:didEndEditingCellForItemAtIndex:)];
+        _dataSourceHas.pasteboardWriterForIndex           = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:pasteboardWriterForIndex:)];
+        _dataSourceHas.menuForItemsAtIndexes              = (unsigned int)[_dataSource respondsToSelector:@selector(gridView:menuForItemsAtIndexes:)];
         
         [self OE_setNeedsReloadData];
     }

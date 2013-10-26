@@ -25,7 +25,6 @@
  */
 
 #import "OEGridViewFieldEditor.h"
-#import "NSColor+OEAdditions.h"
 
 #pragma mark -
 
@@ -56,10 +55,10 @@
         
         CALayer *layer = [self layer];
         [layer setShouldRasterize:YES];
-        [layer setShadowOpacity:0.45];
+        [layer setShadowOpacity:0.45f];
         [layer setShadowColor:[[NSColor blackColor] CGColor]];
-        [layer setShadowOffset:CGSizeMake(0.0, -6.0)];
-        [layer setShadowRadius:5];
+        [layer setShadowOffset:CGSizeMake(0.f, -6.f)];
+        [layer setShadowRadius:5.f];
     }
     
     return self;
