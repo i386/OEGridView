@@ -120,6 +120,9 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         unsigned int acceptDrop : 1;
         unsigned int magnifiedWithEvent : 1;
         unsigned int magnifyEndedWithEvent : 1;
+        unsigned int fileTypesForDraggingOperation: 1;
+        unsigned int draggingSourceOperationMaskForLocal: 1;
+        unsigned int namesOfPromisedFilesDroppedAtDestination: 1;
     } _delegateHas;                                 // Cached methods that the delegate implements
     
     struct
@@ -1055,8 +1058,27 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                 // If there are items being dragged, start a dragging session
                 if([draggingItems count] > 0)
                 {
-                    _draggingSession = [self beginDraggingSessionWithItems:draggingItems event:theEvent source:self];
-                    [_draggingSession setDraggingFormation:NSDraggingFormationStack];
+                    if (_delegateHas.fileTypesForDraggingOperation)
+                    {
+                        NSPoint dragPosition;
+                        NSRect imageLocation;
+                        dragPosition = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+                        dragPosition.x -= 16;
+                        dragPosition.y -= 16;
+                        imageLocation.origin = dragPosition;
+                        imageLocation.size = NSMakeSize(32,32);
+                        
+                        [self dragPromisedFilesOfTypes:[_delegate fileTypesForDraggingOperation:self]
+                                              fromRect:imageLocation
+                                                source:self
+                                             slideBack:YES
+                                                 event:theEvent];
+                    }
+                    else
+                    {
+                        _draggingSession = [self beginDraggingSessionWithItems:draggingItems event:theEvent source:self];
+                        [_draggingSession setDraggingFormation:NSDraggingFormationStack];
+                    }
                 }
                 
                 // Cacnel the tracking layer (which will cancel the event tracking loop).  The dragging session has it's own mouse tracking loop.
@@ -1509,12 +1531,37 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 
 - (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context
 {
-    return context == NSDraggingContextWithinApplication ? NSDragOperationCopy : NSDragOperationNone;
+    if (_delegateHas.fileTypesForDraggingOperation && context == NSDraggingContextOutsideApplication)
+    {
+        return NSDragOperationCopy;
+    }
+    else
+    {
+        return context == NSDraggingContextWithinApplication ? NSDragOperationCopy : NSDragOperationNone;
+    }
 }
 
 - (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation
 {
     _draggingSession = nil;
+}
+
+-(NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination
+{
+    if (_delegateHas.namesOfPromisedFilesDroppedAtDestination)
+    {
+        return [_delegate namesOfPromisedFilesDroppedForGrid:self atDestination:dropDestination];
+    }
+    return @[];
+}
+
+-(NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag
+{
+    if (_delegateHas.draggingSourceOperationMaskForLocal)
+    {
+        return [_delegate gridView:self draggingSourceOperationMaskForLocal:flag];
+    }
+    return NSDragOperationNone;
 }
 
 #pragma mark -
@@ -1587,13 +1634,16 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if(_delegate != delegate)
     {
         _delegate = delegate;
-        _delegateHas.selectionChanged                = [_delegate respondsToSelector:@selector(selectionChangedInGridView:)];
-        _delegateHas.doubleClickedCellForItemAtIndex = [_delegate respondsToSelector:@selector(gridView:doubleClickedCellForItemAtIndex:)];
-        _delegateHas.validateDrop                    = [_delegate respondsToSelector:@selector(gridView:validateDrop:)];
-        _delegateHas.draggingUpdated                 = [_delegate respondsToSelector:@selector(gridView:draggingUpdated:)];
-        _delegateHas.acceptDrop                      = [_delegate respondsToSelector:@selector(gridView:acceptDrop:)];
-        _delegateHas.magnifiedWithEvent              = [_delegate respondsToSelector:@selector(gridView:magnifiedWithEvent:)];
-        _delegateHas.magnifyEndedWithEvent           = [_delegate respondsToSelector:@selector(gridView:magnifyEndedWithEvent:)];
+        _delegateHas.selectionChanged                           = [_delegate respondsToSelector:@selector(selectionChangedInGridView:)];
+        _delegateHas.doubleClickedCellForItemAtIndex            = [_delegate respondsToSelector:@selector(gridView:doubleClickedCellForItemAtIndex:)];
+        _delegateHas.validateDrop                               = [_delegate respondsToSelector:@selector(gridView:validateDrop:)];
+        _delegateHas.draggingUpdated                            = [_delegate respondsToSelector:@selector(gridView:draggingUpdated:)];
+        _delegateHas.acceptDrop                                 = [_delegate respondsToSelector:@selector(gridView:acceptDrop:)];
+        _delegateHas.magnifiedWithEvent                         = [_delegate respondsToSelector:@selector(gridView:magnifiedWithEvent:)];
+        _delegateHas.magnifyEndedWithEvent                      = [_delegate respondsToSelector:@selector(gridView:magnifyEndedWithEvent:)];
+        _delegateHas.fileTypesForDraggingOperation              = [_delegate respondsToSelector:@selector(fileTypesForDraggingOperation:)];
+        _delegateHas.draggingSourceOperationMaskForLocal        = [_delegate respondsToSelector:@selector(gridView:draggingSourceOperationMaskForLocal:)];
+        _delegateHas.namesOfPromisedFilesDroppedAtDestination   = [_delegate respondsToSelector:@selector(namesOfPromisedFilesDroppedForGrid:atDestination:)];
         
         if ([_delegate respondsToSelector:@selector(gridView:prepareDragIndicationLayer:)])
         {

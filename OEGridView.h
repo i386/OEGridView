@@ -42,6 +42,11 @@
 - (void)gridView:(OEGridView *)gridView magnifiedWithEvent:(NSEvent*)event;
 - (void)gridView:(OEGridView *)gridView magnifyEndedWithEvent:(NSEvent*)event;
 - (BOOL)gridView:(OEGridView *)gridView prepareDragIndicationLayer:(OEGridLayer*)gridLayer;
+
+- (NSArray*)namesOfPromisedFilesDroppedForGrid:(OEGridView*)gridView atDestination:(NSURL *)dropDestination;
+- (NSArray*)fileTypesForDraggingOperation:(OEGridView*)gridView;
+- (NSDragOperation)gridView:(OEGridView *)gridView draggingSourceOperationMaskForLocal:(BOOL)flag;
+
 @end
 
 #pragma mark -
