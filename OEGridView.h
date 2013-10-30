@@ -39,6 +39,7 @@
 - (NSDragOperation)gridView:(OEGridView *)gridView validateDrop:(id<NSDraggingInfo>)sender;
 - (NSDragOperation)gridView:(OEGridView *)gridView draggingUpdated:(id<NSDraggingInfo>)sender;
 - (BOOL)gridView:(OEGridView *)gridView acceptDrop:(id<NSDraggingInfo>)sender;
+- (BOOL)gridView:(OEGridView *)gridView keyDown:(NSEvent*)event;
 - (void)gridView:(OEGridView *)gridView magnifiedWithEvent:(NSEvent*)event;
 - (void)gridView:(OEGridView *)gridView magnifyEndedWithEvent:(NSEvent*)event;
 - (BOOL)gridView:(OEGridView *)gridView prepareDragIndicationLayer:(OEGridLayer*)gridLayer;

@@ -122,6 +122,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         unsigned int fileTypesForDraggingOperation: 1;
         unsigned int draggingSourceOperationMaskForLocal: 1;
         unsigned int namesOfPromisedFilesDroppedAtDestination: 1;
+        unsigned int keyDown: 1;
     } _delegateHas;                                 // Cached methods that the delegate implements
     
     struct
@@ -1415,8 +1416,10 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 
 - (void)keyDown:(NSEvent *)theEvent
 {
-    if ([theEvent keyCode] == kVK_Delete || [theEvent keyCode] == kVK_ForwardDelete) [NSApp sendAction:@selector(delete:) to:nil from:self];
-    else                                                                             [super keyDown:theEvent];
+    if (!_delegateHas.keyDown || ![_delegate gridView:self keyDown:theEvent])
+    {
+        [super keyDown:theEvent];
+    }
 }
 
 #pragma mark -
@@ -1643,6 +1646,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         _delegateHas.fileTypesForDraggingOperation              = [_delegate respondsToSelector:@selector(fileTypesForDraggingOperation:)];
         _delegateHas.draggingSourceOperationMaskForLocal        = [_delegate respondsToSelector:@selector(gridView:draggingSourceOperationMaskForLocal:)];
         _delegateHas.namesOfPromisedFilesDroppedAtDestination   = [_delegate respondsToSelector:@selector(namesOfPromisedFilesDroppedForGrid:atDestination:)];
+        _delegateHas.keyDown                                    = [_delegate respondsToSelector:@selector(gridView:keyDown:)];
         
         if ([_delegate respondsToSelector:@selector(gridView:prepareDragIndicationLayer:)])
         {
