@@ -224,15 +224,21 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 #pragma mark -
 #pragma mark Query Data Sources
 
-- (id)dequeueReusableCell
+- (OEGridViewCell *)dequeueReusableCell
 {
-    if([_reuseableCells count] == 0) return nil;
-    
-    OEGridViewCell *cell = [_reuseableCells anyObject];
-    [_reuseableCells removeObject:cell];
-    [cell prepareForReuse];
-    
-    return cell;
+    if (_disableCellReuse)
+    {
+        if([_reuseableCells count] == 0) return nil;
+        
+        OEGridViewCell *cell = [_reuseableCells anyObject];
+        if (cell)
+        {
+            [cell prepareForReuse];
+            [_reuseableCells removeObject:cell];
+            return cell;
+        }
+    }
+    return nil;
 }
 
 - (NSUInteger)numberOfItems
@@ -423,7 +429,10 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
              if([_fieldEditor delegate] == cell) [self OE_cancelFieldEditor];
              
              [_visibleCellByIndex removeObjectForKey:key];
-             [_reuseableCells addObject:cell];
+             if (!_disableCellReuse)
+             {
+                 [_reuseableCells addObject:cell];
+             }
              [cell removeFromSuperlayer];
          }
      }];
@@ -633,7 +642,11 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     [self OE_enqueueCellsAtIndexes:_visibleCellsIndexes];
     [_visibleCellsIndexes removeAllIndexes];
-    [_reuseableCells removeAllObjects];
+    
+    if (!_disableCellReuse)
+    {
+        [_reuseableCells removeAllObjects];
+    }
     
     _cachedNumberOfVisibleColumns = 0;
     _cachedNumberOfVisibleRows    = 0;

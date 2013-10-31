@@ -71,7 +71,7 @@
 #pragma mark -
 #pragma mark Query Data Sources
 
-- (id)dequeueReusableCell;
+- (OEGridViewCell *)dequeueReusableCell;
 - (NSUInteger)numberOfItems;
 - (OEGridViewCell *)cellForItemAtIndex:(NSUInteger)idx makeIfNecessary:(BOOL)necessary;
 
@@ -110,6 +110,7 @@
 @property(nonatomic, assign) CGFloat     minimumColumnSpacing; // Minimum spacing between columns
 @property(nonatomic, assign) CGFloat     rowSpacing;           // Minimum spacing between rows
 @property(nonatomic, assign) CGSize      itemSize;             // User defined cell size (defaults to 250 x 250)
+@property(nonatomic, assign) BOOL        disableCellReuse;
 @property(nonatomic, copy)   NSIndexSet *selectionIndexes;     // NSIndexSet of selected indexes
 
 @property(nonatomic, assign) IBOutlet id<OEGridViewDataSource> dataSource; // Responsible for supplying the cells of each object represented in the grid
