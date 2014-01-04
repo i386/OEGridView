@@ -35,6 +35,7 @@
 
 @optional
 - (void)selectionChangedInGridView:(OEGridView *)gridView;
+- (void)gridView:(OEGridView *)gridView clickedCellForItemAtIndex:(NSUInteger)idx;
 - (void)gridView:(OEGridView *)gridView doubleClickedCellForItemAtIndex:(NSUInteger)idx;
 - (NSDragOperation)gridView:(OEGridView *)gridView validateDrop:(id<NSDraggingInfo>)sender;
 - (NSDragOperation)gridView:(OEGridView *)gridView draggingUpdated:(id<NSDraggingInfo>)sender;

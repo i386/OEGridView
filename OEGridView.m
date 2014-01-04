@@ -114,6 +114,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     {
         unsigned int selectionChanged : 1;
         unsigned int doubleClickedCellForItemAtIndex : 1;
+        unsigned int clickedCellForItemAtIndex: 1;
         unsigned int validateDrop : 1;
         unsigned int draggingUpdated : 1;
         unsigned int acceptDrop : 1;
@@ -1221,6 +1222,12 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
             if ([cell isKindOfClass:[OEGridViewCell class]])
                 [_delegate gridView:self doubleClickedCellForItemAtIndex:[cell OE_index]];
         }
+        else if ([theEvent clickCount] == 1 && _delegateHas.clickedCellForItemAtIndex)
+        {
+            OEGridViewCell *cell = (OEGridViewCell *)[self OE_gridLayerForPoint:pointInView];
+            if ([cell isKindOfClass:[OEGridViewCell class]])
+                [_delegate gridView:self clickedCellForItemAtIndex:[cell OE_index]];
+        }
     }
     else if(_trackingLayer != _rootLayer)
     {
@@ -1650,6 +1657,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     {
         _delegate = delegate;
         _delegateHas.selectionChanged                           = [_delegate respondsToSelector:@selector(selectionChangedInGridView:)];
+        _delegateHas.clickedCellForItemAtIndex                  = [_delegate respondsToSelector:@selector(gridView:clickedCellForItemAtIndex:)];
         _delegateHas.doubleClickedCellForItemAtIndex            = [_delegate respondsToSelector:@selector(gridView:doubleClickedCellForItemAtIndex:)];
         _delegateHas.validateDrop                               = [_delegate respondsToSelector:@selector(gridView:validateDrop:)];
         _delegateHas.draggingUpdated                            = [_delegate respondsToSelector:@selector(gridView:draggingUpdated:)];
