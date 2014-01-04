@@ -114,7 +114,7 @@
 @property(nonatomic, assign) BOOL        disableCellReuse;
 @property(nonatomic, copy)   NSIndexSet *selectionIndexes;     // NSIndexSet of selected indexes
 
-@property(nonatomic, assign) IBOutlet id<OEGridViewDataSource> dataSource; // Responsible for supplying the cells of each object represented in the grid
-@property(nonatomic, assign) IBOutlet id<OEGridViewDelegate>   delegate;   // Receives information regarding the user interaction of the grid and it's cells
+@property(weak, nonatomic) IBOutlet id<OEGridViewDataSource> dataSource; // Responsible for supplying the cells of each object represented in the grid
+@property(weak, nonatomic) IBOutlet id<OEGridViewDelegate>   delegate;   // Receives information regarding the user interaction of the grid and it's cells
 
 @end

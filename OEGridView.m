@@ -136,13 +136,6 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     } _dataSourceHas;                               // Cached methods that the dataSource implements
 }
 
-@synthesize foregroundLayer=_foregroundLayer;
-@synthesize backgroundLayer=_backgroundLayer;
-@synthesize minimumColumnSpacing=_minimumColumnSpacing;
-@synthesize rowSpacing=_rowSpacing;
-@synthesize itemSize=_itemSize;
-@synthesize delegate = _delegate, dataSource = _dataSource;
-
 - (id)initWithFrame:(NSRect)frame
 {
     if((self = [super initWithFrame:frame]))
