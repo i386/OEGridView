@@ -1690,6 +1690,12 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     return [_selectionIndexes copy];
 }
 
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:self.window];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:self.window];
+}
+
 @end
 
 @implementation OEGridView (OEGridViewCell)
