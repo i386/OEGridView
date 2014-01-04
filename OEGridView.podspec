@@ -9,5 +9,5 @@ Pod::Spec.new do |s|
   s.platform     = :osx, '10.8'
   s.source_files = '**/*.{h,m}'
   s.public_header_files = '**/*.h'
-  # s.requires_arc = false
+  s.requires_arc = true 
 end
