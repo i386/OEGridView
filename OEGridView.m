@@ -70,6 +70,8 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 @end
 
 @implementation OEGridView {
+    NSMutableArray *_draggedItems;                  //Items being dragged. Cleared on drag exit.
+    
     NSTrackingArea *_trackingArea;
     OEGridLayer *_rootLayer;                        // Root layer, where all other layers are inserted into
     CALayer     *_selectionLayer;                   // Selection box that appears when selecting multiple cells
@@ -124,6 +126,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         unsigned int draggingSourceOperationMaskForLocal: 1;
         unsigned int namesOfPromisedFilesDroppedAtDestination: 1;
         unsigned int keyDown: 1;
+        unsigned int writeToPasteboard: 1;
     } _delegateHas;                                 // Cached methods that the delegate implements
     
     struct
@@ -170,6 +173,8 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     _reuseableCells      = [[NSMutableSet alloc] init];
     
     [self setWantsLayer:YES];
+    
+    _draggedItems = [NSMutableArray array];
 }
 
 - (CALayer *)makeBackingLayer
@@ -1034,6 +1039,28 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     if(isTrackingRootLayer) [NSEvent stopPeriodicEvents];
 }
 
+-(void)dragImage:(NSImage *)anImage at:(NSPoint)viewLocation offset:(NSSize)initialOffset event:(NSEvent *)event pasteboard:(NSPasteboard *)pboard source:(id)sourceObj slideBack:(BOOL)slideFlag
+{
+    NSMutableArray *dataToAddToPBoard = [NSMutableArray array];
+    
+    for (NSDraggingItem *draggingItem in _draggedItems)
+    {
+        id item = draggingItem.item;
+        
+        if ([item conformsToProtocol:@protocol(NSPasteboardWriting)])
+        {
+            [dataToAddToPBoard addObject:item];
+        }
+    }
+    
+    if (dataToAddToPBoard.count > 0)
+    {
+        [pboard writeObjects:dataToAddToPBoard];
+    }
+    
+    [super dragImage:anImage at:viewLocation offset:initialOffset event:event pasteboard:pboard source:sourceObj slideBack:slideFlag];
+}
+
 - (void)mouseDragged:(NSEvent *)theEvent
 {
     // Exit immediately if the noItemsView is visible or if we are not tracking anything
@@ -1048,7 +1075,6 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
             const NSPoint draggedDistance = NSMakePoint(ABS(pointInView.x - _initialPoint.x), ABS(pointInView.y - _initialPoint.y));
             if(draggedDistance.x >= 5.0 || draggedDistance.y >= 5.0 || (draggedDistance.x * draggedDistance.x + draggedDistance.y * draggedDistance.y) >= 25)
             {
-                __block NSMutableArray *draggingItems = [NSMutableArray array];
                 [_selectionIndexes enumerateIndexesUsingBlock:
                  ^ (NSUInteger idx, BOOL *stop)
                  {
@@ -1058,12 +1084,12 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                          NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:item];
                          OEGridViewCell *cell = [self cellForItemAtIndex:idx makeIfNecessary:YES];
                          [dragItem setDraggingFrame:NSOffsetRect([cell hitRect], NSMinX([cell frame]), NSMinY([cell frame])) contents:[cell draggingImage]];
-                         [draggingItems addObject:dragItem];
+                         [_draggedItems addObject:dragItem];
                      }
                  }];
                 
                 // If there are items being dragged, start a dragging session
-                if([draggingItems count] > 0)
+                if([_draggedItems count] > 0)
                 {
                     if (_delegateHas.fileTypesForDraggingOperation)
                     {
@@ -1083,7 +1109,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                     }
                     else
                     {
-                        _draggingSession = [self beginDraggingSessionWithItems:draggingItems event:theEvent source:self];
+                        _draggingSession = [self beginDraggingSessionWithItems:_draggedItems event:theEvent source:self];
                         [_draggingSession setDraggingFormation:NSDraggingFormationStack];
                     }
                 }
@@ -1531,6 +1557,8 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     {
         [_dragIndicationLayer setHidden:YES];
     }
+    
+    [_draggedItems removeAllObjects];
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
