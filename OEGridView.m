@@ -111,6 +111,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     
     NSUInteger _supressFrameResize;
     OEGridViewFieldEditor *_fieldEditor;            // Text field editor of a CATextLayer
+    NSClipView *_clipView;                          // The current clipview
     
     struct
     {
@@ -749,8 +750,9 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 
 - (void)viewWillMoveToSuperview:(NSView *)newSuperview
 {
+    _clipView                                = ([newSuperview isKindOfClass:[NSClipView class]] ? (NSClipView *)newSuperview : nil);
+
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    NSClipView           *newClipView        = ([newSuperview isKindOfClass:[NSClipView class]] ? (NSClipView *)newSuperview : nil);
     NSClipView           *oldClipView        = [[self enclosingScrollView] contentView];
     
     if(oldClipView)
@@ -759,14 +761,14 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
         [notificationCenter removeObserver:self name:NSViewFrameDidChangeNotification object:oldClipView];
     }
     
-    if(newClipView)
+    if(_clipView)
     {
         // TODO: I think there is some optimization we can do here
         [self setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-        [notificationCenter addObserver:self selector:@selector(OE_clipViewBoundsChanged:) name:NSViewBoundsDidChangeNotification object:newClipView];
-        [notificationCenter addObserver:self selector:@selector(OE_clipViewFrameChanged:) name:NSViewFrameDidChangeNotification object:newClipView];
-        [newClipView setPostsBoundsChangedNotifications:YES];
-        [newClipView setPostsFrameChangedNotifications:YES];
+        [notificationCenter addObserver:self selector:@selector(OE_clipViewBoundsChanged:) name:NSViewBoundsDidChangeNotification object:_clipView];
+        [notificationCenter addObserver:self selector:@selector(OE_clipViewFrameChanged:) name:NSViewFrameDidChangeNotification object:_clipView];
+        [_clipView setPostsBoundsChangedNotifications:YES];
+        [_clipView setPostsFrameChangedNotifications:YES];
     }
 }
 
@@ -1722,6 +1724,9 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:self.window];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:self.window];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:_clipView];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:_clipView];
 }
 
 @end
