@@ -1104,7 +1104,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
                         [self dragPromisedFilesOfTypes:[_delegate fileTypesForDraggingOperation:self]
                                               fromRect:imageLocation
                                                 source:self
-                                             slideBack:YES
+                                             slideBack:NO
                                                  event:theEvent];
                     }
                     else
