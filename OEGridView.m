@@ -1657,6 +1657,7 @@ const NSTimeInterval OEPeriodicInterval     = 0.075;    // Subsequent interval o
     _itemSize = itemSize;
     [[self enclosingScrollView] flashScrollers];
     [self OE_calculateCachedValuesAndQueryForDataChanges:NO];
+    [self reloadCellsAtIndexes:_visibleCellsIndexes];
 }
 
 - (void)setDataSource:(id<OEGridViewDataSource>)dataSource
